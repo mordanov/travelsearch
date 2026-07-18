@@ -1,6 +1,5 @@
 """Integration tests for Telegram webhook."""
-import uuid
-from unittest.mock import AsyncMock, MagicMock, patch
+from unittest.mock import AsyncMock, patch
 
 import pytest
 from httpx import AsyncClient
@@ -42,7 +41,8 @@ class TestTelegramWebhook:
             json=_make_update("/start"),
             headers={"X-Telegram-Bot-Api-Secret-Token": "wrong-secret"},
         )
-        assert resp.status_code in (403, 404)  # 403 on wrong secret, response depends on webhook_secret setting
+        # 403 on wrong secret; exact code depends on webhook_secret setting
+        assert resp.status_code in (403, 404)
 
     @pytest.mark.asyncio
     async def test_missing_secret_returns_403(self, client: AsyncClient) -> None:

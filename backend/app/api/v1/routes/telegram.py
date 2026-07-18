@@ -1,6 +1,5 @@
 import secrets
 import string
-from typing import Any
 
 import structlog
 from fastapi import APIRouter, Header, Request, Response, status

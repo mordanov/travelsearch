@@ -1,5 +1,5 @@
-import structlog
 import httpx
+import structlog
 
 from app.core.config import get_settings
 from app.notifiers.base import NotificationMessage, NotificationType, Notifier

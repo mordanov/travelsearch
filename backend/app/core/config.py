@@ -13,7 +13,7 @@ class Settings(BaseSettings):
     redis_url: str = "redis://localhost:6379/0"
 
     # JWT
-    jwt_secret: str = "change-me-in-production-at-least-32-chars"
+    jwt_secret: str = "change-me-in-production-at-least-32-chars"  # noqa: S105
     jwt_algorithm: str = "HS256"
     access_token_expire_minutes: int = 30
     refresh_token_expire_days: int = 7

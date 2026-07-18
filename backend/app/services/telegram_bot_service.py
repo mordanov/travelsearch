@@ -2,6 +2,7 @@ import uuid
 from datetime import datetime
 from typing import Any
 
+import redis.asyncio as aioredis
 import structlog
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -38,7 +39,9 @@ async def _send_reply(chat_id: int, text: str) -> None:
         log.exception("telegram_send_reply_error", chat_id=chat_id)
 
 
-async def handle_update(update: dict[str, Any], db: AsyncSession, redis: Any) -> None:
+async def handle_update(
+    update: dict[str, Any], db: AsyncSession, redis: aioredis.Redis  # type: ignore[type-arg]
+) -> None:
     message = update.get("message") or update.get("edited_message")
     if not message:
         return
@@ -64,7 +67,9 @@ async def handle_update(update: dict[str, Any], db: AsyncSession, redis: Any) ->
         await _send_reply(chat_id, "Unknown command. Try /follow <url>, /unfollow <url>, /list")
 
 
-async def _handle_start(chat_id: int, code: str, db: AsyncSession, redis: Any) -> None:
+async def _handle_start(
+    chat_id: int, code: str, db: AsyncSession, redis: aioredis.Redis  # type: ignore[type-arg]
+) -> None:
     if not code:
         await _send_reply(chat_id, "Welcome! Use the app to generate a link code.")
         return
@@ -113,7 +118,9 @@ def _is_allowed_url(url: str) -> bool:
         if parsed.scheme not in ("https", "http"):
             return False
         host = parsed.netloc.lower().split(":")[0]  # strip port if present
-        return any(host == allowed or host.endswith("." + allowed) for allowed in _ALLOWED_URL_HOSTS)
+        return any(
+            host == allowed or host.endswith("." + allowed) for allowed in _ALLOWED_URL_HOSTS
+        )
     except Exception:
         return False
 
@@ -154,16 +161,15 @@ async def _handle_follow(chat_id: int, url: str, db: AsyncSession) -> None:
     if parsed.check_in is None or parsed.check_out is None:
         await _send_reply(
             chat_id,
-            "Could not extract dates from the link. Please send a URL that includes check-in and check-out dates.",
+            "Could not extract dates from the link. "
+            "Please send a URL that includes check-in and check-out dates.",
         )
         return
 
-    from app.repositories.property_repository import upsert_property
-    from app.providers.base import PropertyListing
-    from decimal import Decimal
 
     # Find or create property by provider identity
     from sqlalchemy import select
+
     from app.models.property import Property
 
     result = await db.execute(
@@ -235,6 +241,7 @@ async def _handle_unfollow(chat_id: int, url: str, db: AsyncSession) -> None:
         return
 
     from sqlalchemy import select
+
     from app.models.property import Property
     from app.models.tracked_property import TrackedProperty
 
@@ -273,7 +280,8 @@ async def _handle_unfollow(chat_id: int, url: str, db: AsyncSession) -> None:
             await _send_reply(chat_id, "Property not tracked.")
     else:
         await _send_reply(
-            chat_id, "Could not extract dates from URL. Please include check-in and check-out dates."
+            chat_id,
+            "Could not extract dates from URL. Please include check-in and check-out dates."
         )
 
 
@@ -303,12 +311,14 @@ async def _handle_list(chat_id: int, db: AsyncSession) -> None:
     if properties:
         lines.append("<b>Tracked Properties:</b>")
         from sqlalchemy import select
+
         from app.models.property import Property
         for tp in properties[:10]:
             result = await db.execute(select(Property).where(Property.id == tp.property_id))
             prop = result.scalar_one_or_none()
             name = prop.name if prop else "?"
-            lines.append(f"• {name} ({tp.check_in.date()} → {tp.check_out.date()}, every {tp.interval_hours}h)")
+            dates = f"{tp.check_in.date()} → {tp.check_out.date()}"
+            lines.append(f"• {name} ({dates}, every {tp.interval_hours}h)")
     else:
         lines.append("No tracked properties.")
 

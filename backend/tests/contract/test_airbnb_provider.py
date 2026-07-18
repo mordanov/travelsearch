@@ -4,8 +4,8 @@ from unittest.mock import AsyncMock, patch
 
 import pytest
 
-from app.providers.base import ScrapeStatus
 from app.providers.airbnb import AirbnbProvider
+from app.providers.base import ScrapeStatus
 
 
 class TestAirbnbProviderContract:

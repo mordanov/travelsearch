@@ -1,5 +1,4 @@
 """Integration tests for Telegram linking flow."""
-import uuid
 from unittest.mock import AsyncMock, patch
 
 import pytest

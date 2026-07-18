@@ -5,6 +5,7 @@ import uuid
 from datetime import date
 from typing import Any
 
+import redis.asyncio as aioredis
 import structlog
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -25,7 +26,7 @@ SEARCH_STATUS_KEY = "search:status:{search_id}"
 
 async def run_search(
     db: AsyncSession,
-    redis: Any,
+    redis: aioredis.Redis,  # type: ignore[type-arg]
     user_id: uuid.UUID,
     destination: str,
     check_in: date,

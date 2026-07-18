@@ -2,11 +2,10 @@ from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
 from datetime import date
 from decimal import Decimal
-from enum import Enum
-from typing import Optional
+from enum import StrEnum
 
 
-class ScrapeStatus(str, Enum):
+class ScrapeStatus(StrEnum):
     OK = "ok"
     BLOCKED = "blocked"
     CAPTCHA = "captcha"
@@ -21,15 +20,15 @@ class PropertyListing:
     url: str
     price_per_night: Decimal
     total_price: Decimal
-    rating: Optional[float] = None
-    bedrooms: Optional[int] = None
-    bathrooms: Optional[int] = None
-    distance_km: Optional[float] = None
-    free_cancellation: Optional[bool] = None
+    rating: float | None = None
+    bedrooms: int | None = None
+    bathrooms: int | None = None
+    distance_km: float | None = None
+    free_cancellation: bool | None = None
     amenities: list[str] = field(default_factory=list)
-    location: Optional[str] = None
-    latitude: Optional[float] = None
-    longitude: Optional[float] = None
+    location: str | None = None
+    latitude: float | None = None
+    longitude: float | None = None
 
 
 @dataclass
@@ -42,7 +41,7 @@ class SearchResult:
 @dataclass
 class PropertyDetail:
     status: ScrapeStatus
-    listing: Optional[PropertyListing]
+    listing: PropertyListing | None
     provider: str
 
 
@@ -90,7 +89,7 @@ class Provider(ABC):
         ...
 
     @abstractmethod
-    def parse_url(self, url: str) -> Optional[ParsedPropertySearch]:
+    def parse_url(self, url: str) -> ParsedPropertySearch | None:
         """
         Parse a provider URL and extract property identity + dates.
         Returns None if the URL is not a recognized listing or lacks date params.

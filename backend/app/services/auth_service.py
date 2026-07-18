@@ -1,6 +1,4 @@
-import uuid
-from typing import Any
-
+import redis.asyncio as aioredis
 import structlog
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -37,7 +35,7 @@ async def create_tokens(user: User) -> dict[str, str]:
 
 async def refresh_access_token(
     refresh_token: str,
-    redis: Any,
+    redis: aioredis.Redis,  # type: ignore[type-arg]
 ) -> dict[str, str] | None:
     """Rotate refresh token: validate old token, revoke it, issue new access+refresh pair."""
     try:
@@ -59,8 +57,6 @@ async def refresh_access_token(
         return None
 
     # Revoke the old token before issuing the new one (rotation per SEC-001)
-    from app.core.config import get_settings
-    settings = get_settings()
     ttl = int(payload["exp"]) - int(payload["iat"])
     await redis.setex(f"{REVOKED_RT_PREFIX}{jti}", max(ttl, 1), "1")
 
@@ -69,7 +65,9 @@ async def refresh_access_token(
     return {"access_token": new_access, "refresh_token": new_refresh, "token_type": "bearer"}
 
 
-async def revoke_refresh_token(refresh_token: str, redis: Any) -> None:
+async def revoke_refresh_token(
+    refresh_token: str, redis: aioredis.Redis  # type: ignore[type-arg]
+) -> None:
     """Revoke a refresh token by its jti. Used on logout."""
     try:
         payload = decode_token(refresh_token)

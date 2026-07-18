@@ -3,7 +3,15 @@ from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 
-from app.api.v1.routes import auth, notifications, property, search, telegram, tracked_property, tracked_search
+from app.api.v1.routes import (
+    auth,
+    notifications,
+    property,
+    search,
+    telegram,
+    tracked_property,
+    tracked_search,
+)
 from app.core.config import get_settings
 from app.core.logging import configure_logging
 
@@ -28,7 +36,9 @@ app.add_middleware(
 
 
 @app.exception_handler(RequestValidationError)
-async def validation_exception_handler(request: Request, exc: RequestValidationError) -> JSONResponse:
+async def validation_exception_handler(
+    request: Request, exc: RequestValidationError
+) -> JSONResponse:
     return JSONResponse(
         status_code=422,
         content={

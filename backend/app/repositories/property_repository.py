@@ -1,5 +1,4 @@
 import uuid
-from decimal import Decimal
 
 import structlog
 from sqlalchemy import select
@@ -44,7 +43,9 @@ async def upsert_property(db: AsyncSession, listing: PropertyListing) -> Propert
     )
     result = await db.execute(stmt)
     row = result.fetchone()
-    assert row is not None
+    if row is None:
+        msg = "upsert_property returned no row"
+        raise RuntimeError(msg)
     prop: Property = row[0]
     return prop
 

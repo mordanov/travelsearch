@@ -1,8 +1,9 @@
 import uuid
-from typing import Annotated, Any
+from typing import Annotated
 
+import redis.asyncio as aioredis
 import structlog
-from fastapi import Cookie, Depends, HTTPException, Request, status
+from fastapi import Depends, HTTPException, status
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -24,8 +25,10 @@ async def get_current_user(
     token = credentials.credentials
     try:
         payload = decode_token(token)
-    except ValueError:
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid token")
+    except ValueError as err:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid token"
+        ) from err
 
     if payload.get("type") != "access":
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid token type")
@@ -36,8 +39,10 @@ async def get_current_user(
 
     try:
         user_id = uuid.UUID(user_id_str)
-    except ValueError:
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid token")
+    except ValueError as err:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid token"
+        ) from err
 
     user = await user_repository.get_by_id(db, user_id)
     if user is None or not user.is_active:
@@ -48,4 +53,4 @@ async def get_current_user(
 
 CurrentUser = Annotated[User, Depends(get_current_user)]
 DB = Annotated[AsyncSession, Depends(get_db)]
-Redis = Annotated[Any, Depends(get_redis)]
+Redis = Annotated[aioredis.Redis, Depends(get_redis)]  # type: ignore[type-arg]

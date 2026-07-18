@@ -1,19 +1,15 @@
 """Unit tests for TrackingService."""
 import uuid
 from datetime import datetime
-from decimal import Decimal
 from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
 
 from app.services.tracking_service import (
-    VALID_INTERVALS,
     InvalidIntervalError,
     TrackingLimitExceededError,
     TrackingNotFoundError,
-    create_tracked_property,
     create_tracked_search,
-    remove_tracked_property,
     remove_tracked_search,
 )
 

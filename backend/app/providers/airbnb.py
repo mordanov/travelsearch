@@ -2,11 +2,10 @@
 AirbnbProvider — Playwright-based scraper for Airbnb.
 Scraper internals are encapsulated here; no other module imports this class directly.
 """
+import re
 from datetime import date
 from decimal import Decimal
-from typing import Optional
-from urllib.parse import urlparse, parse_qs
-import re
+from urllib.parse import parse_qs, urlparse
 
 import structlog
 
@@ -85,7 +84,9 @@ class AirbnbProvider(Provider):
 
                     content = await page.content()
                     if self._is_blocked(content):
-                        return SearchResult(status=ScrapeStatus.BLOCKED, listings=[], provider="airbnb")
+                        return SearchResult(
+                            status=ScrapeStatus.BLOCKED, listings=[], provider="airbnb"
+                        )
 
                     listings = await self._parse_search_results(page, check_in, check_out, guests)
 
@@ -94,7 +95,9 @@ class AirbnbProvider(Provider):
                             status=ScrapeStatus.INCOMPLETE, listings=[], provider="airbnb"
                         )
 
-                    return SearchResult(status=ScrapeStatus.OK, listings=listings, provider="airbnb")
+                    return SearchResult(
+                        status=ScrapeStatus.OK, listings=listings, provider="airbnb"
+                    )
                 finally:
                     await browser.close()
 
@@ -133,7 +136,9 @@ class AirbnbProvider(Provider):
                     if not room_id:
                         continue
 
-                    price_el = await card.query_selector('span[data-testid="price-availability-row"]')
+                    price_el = await card.query_selector(
+                        'span[data-testid="price-availability-row"]'
+                    )
                     if not price_el:
                         price_el = await card.query_selector('div._1jo4hgw')
                     price_text = (await price_el.inner_text()).strip() if price_el else "0"
@@ -242,7 +247,9 @@ class AirbnbProvider(Provider):
                         total_price=total_price,
                         amenities=[],
                     )
-                    return PropertyDetail(status=ScrapeStatus.OK, listing=listing, provider="airbnb")
+                    return PropertyDetail(
+                        status=ScrapeStatus.OK, listing=listing, provider="airbnb"
+                    )
                 finally:
                     await browser.close()
 
@@ -250,7 +257,7 @@ class AirbnbProvider(Provider):
             log.warning("airbnb_details_playwright_error", error=str(exc))
             return PropertyDetail(status=ScrapeStatus.BLOCKED, listing=None, provider="airbnb")
 
-    def parse_url(self, url: str) -> Optional[ParsedPropertySearch]:
+    def parse_url(self, url: str) -> ParsedPropertySearch | None:
         try:
             parsed = urlparse(url)
             if "airbnb.com" not in parsed.netloc:

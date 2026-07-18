@@ -41,12 +41,13 @@ async def create(
     except (TrackingLimitExceededError, InvalidIntervalError) as exc:
         raise HTTPException(
             status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, detail=str(exc)
-        )
+        ) from exc
     except TrackingNotFoundError as exc:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(exc))
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(exc)) from exc
 
     search = await get_search(db, ts.search_id)
-    assert search is not None
+    if search is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Search not found")
 
     return TrackedSearchResponse(
         id=ts.id,
@@ -97,4 +98,4 @@ async def delete_tracked(
         await remove_tracked_search(db, current_user.id, tracked_search_id)
         await db.commit()
     except TrackingNotFoundError as exc:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(exc))
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(exc)) from exc

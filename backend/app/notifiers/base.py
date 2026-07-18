@@ -1,11 +1,10 @@
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from decimal import Decimal
-from enum import Enum
-from typing import Optional
+from enum import StrEnum
 
 
-class NotificationType(str, Enum):
+class NotificationType(StrEnum):
     NEW_LISTING = "new_listing"
     PRICE_DROP = "price_drop"
 
@@ -16,7 +15,7 @@ class NotificationMessage:
     property_name: str
     property_url: str
     price_after: Decimal
-    price_before: Optional[Decimal] = None  # None for new_listing
+    price_before: Decimal | None = None  # None for new_listing
 
 
 class Notifier(ABC):

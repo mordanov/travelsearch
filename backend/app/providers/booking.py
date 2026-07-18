@@ -2,11 +2,10 @@
 BookingProvider — Playwright-based scraper for Booking.com.
 Scraper internals are encapsulated here; no other module imports this class directly.
 """
+import re
 from datetime import date
 from decimal import Decimal
-from typing import Optional
-from urllib.parse import urlparse, parse_qs
-import re
+from urllib.parse import parse_qs, urlparse
 
 import structlog
 
@@ -90,14 +89,20 @@ class BookingProvider(Provider):
                     # CAPTCHA / block detection
                     content = await page.content()
                     if self._is_blocked(content):
-                        return SearchResult(status=ScrapeStatus.BLOCKED, listings=[], provider="booking")
+                        return SearchResult(
+                            status=ScrapeStatus.BLOCKED, listings=[], provider="booking"
+                        )
 
                     listings = await self._parse_search_results(page, check_in, check_out, guests)
 
                     if not listings:
-                        return SearchResult(status=ScrapeStatus.INCOMPLETE, listings=[], provider="booking")
+                        return SearchResult(
+                            status=ScrapeStatus.INCOMPLETE, listings=[], provider="booking"
+                        )
 
-                    return SearchResult(status=ScrapeStatus.OK, listings=listings, provider="booking")
+                    return SearchResult(
+                        status=ScrapeStatus.OK, listings=listings, provider="booking"
+                    )
                 finally:
                     await browser.close()
 
@@ -114,7 +119,6 @@ class BookingProvider(Provider):
     ) -> list[PropertyListing]:
         listings = []
         try:
-            from playwright.async_api import Page as PlaywrightPage
 
             p = page  # type: ignore[assignment]
             cards = await p.query_selector_all('[data-testid="property-card"]')  # type: ignore[attr-defined]
@@ -133,7 +137,9 @@ class BookingProvider(Provider):
                     if url and not url.startswith("http"):
                         url = "https://www.booking.com" + url
 
-                    price_el = await card.query_selector('[data-testid="price-and-discounted-price"]')
+                    price_el = await card.query_selector(
+                        '[data-testid="price-and-discounted-price"]'
+                    )
                     price_text = (await price_el.inner_text()).strip() if price_el else "0"
                     total_price = self._parse_price(price_text)
                     price_per_night = Decimal(str(round(float(total_price) / nights, 2)))
@@ -174,7 +180,7 @@ class BookingProvider(Provider):
         except Exception:
             return Decimal("0")
 
-    def _parse_rating(self, text: str) -> Optional[float]:
+    def _parse_rating(self, text: str) -> float | None:
         match = re.search(r"(\d+[.,]\d+)", text)
         if match:
             try:
@@ -249,7 +255,9 @@ class BookingProvider(Provider):
                             status=ScrapeStatus.BLOCKED, listing=None, provider="booking"
                         )
 
-                    price_el = await page.query_selector('[data-testid="price-and-discounted-price"]')
+                    price_el = await page.query_selector(
+                        '[data-testid="price-and-discounted-price"]'
+                    )
                     price_text = (await price_el.inner_text()).strip() if price_el else "0"
                     nights = (check_out - check_in).days or 1
                     total_price = self._parse_price(price_text)
@@ -267,7 +275,9 @@ class BookingProvider(Provider):
                         total_price=total_price,
                         amenities=[],
                     )
-                    return PropertyDetail(status=ScrapeStatus.OK, listing=listing, provider="booking")
+                    return PropertyDetail(
+                        status=ScrapeStatus.OK, listing=listing, provider="booking"
+                    )
                 finally:
                     await browser.close()
 
@@ -275,7 +285,7 @@ class BookingProvider(Provider):
             log.warning("booking_details_playwright_error", error=str(exc))
             return PropertyDetail(status=ScrapeStatus.BLOCKED, listing=None, provider="booking")
 
-    def parse_url(self, url: str) -> Optional[ParsedPropertySearch]:
+    def parse_url(self, url: str) -> ParsedPropertySearch | None:
         try:
             parsed = urlparse(url)
             if "booking.com" not in parsed.netloc:

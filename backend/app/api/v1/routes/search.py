@@ -1,13 +1,18 @@
 import uuid
-from typing import Annotated, Literal
+from typing import Literal
 
 import structlog
-from fastapi import APIRouter, Depends, HTTPException, Query, status
+from fastapi import APIRouter, HTTPException, Query, status
 from fastapi.responses import StreamingResponse
 
 from app.api.v1.deps import DB, CurrentUser, Redis
 from app.providers.base import Provider
-from app.schemas.search import SearchCreateResponse, SearchRequest, SearchResultsPage, SearchStatusResponse
+from app.schemas.search import (
+    SearchCreateResponse,
+    SearchRequest,
+    SearchResultsPage,
+    SearchStatusResponse,
+)
 from app.services import search_service
 
 log = structlog.get_logger(__name__)
@@ -17,8 +22,8 @@ router = APIRouter(prefix="/search", tags=["search"])
 
 def _get_provider_registry() -> dict[str, Provider]:
     # Providers registered here; route imports only the base interface (constitution I)
-    from app.providers.booking import BookingProvider
     from app.providers.airbnb import AirbnbProvider
+    from app.providers.booking import BookingProvider
     return {
         "booking": BookingProvider(),
         "airbnb": AirbnbProvider(),
@@ -110,7 +115,7 @@ async def export_csv(
     if csv_content is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Search not found")
 
-    def _iter():  # type: ignore[return]
+    def _iter() -> bytes:
         yield csv_content
 
     return StreamingResponse(

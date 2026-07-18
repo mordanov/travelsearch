@@ -56,7 +56,9 @@ def compute_search_diff(
             current_price = Decimal(str(listing.total_price))
             min_price = Decimal(str(sp.min_price_seen))
             if current_price < min_price:
-                events.append(PriceDrop(listing=listing, prop_id=prop_id_str, previous_min=min_price))
+                events.append(
+                    PriceDrop(listing=listing, prop_id=prop_id_str, previous_min=min_price)
+                )
     return events
 
 
@@ -103,8 +105,14 @@ async def _process_tracked_search(
         try:
             result = await prov.search(
                 destination=search.destination,
-                check_in=search.check_in.date() if hasattr(search.check_in, "date") else search.check_in,
-                check_out=search.check_out.date() if hasattr(search.check_out, "date") else search.check_out,
+                check_in=(
+                    search.check_in.date() if hasattr(search.check_in, "date") else search.check_in
+                ),
+                check_out=(
+                    search.check_out.date()
+                    if hasattr(search.check_out, "date")
+                    else search.check_out
+                ),
                 guests=search.guests,
                 filters=search.filters or {},
             )

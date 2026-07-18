@@ -1,5 +1,4 @@
 """Integration tests for TrackedSearch API."""
-import uuid
 from decimal import Decimal
 from unittest.mock import AsyncMock, patch
 
@@ -7,9 +6,8 @@ import pytest
 from httpx import AsyncClient
 
 from app.core.security import hash_password
-from app.models.search import Search
 from app.models.user import User
-from app.providers.base import PropertyListing, SearchResult, ScrapeStatus
+from app.providers.base import PropertyListing, ScrapeStatus, SearchResult
 
 
 @pytest.fixture

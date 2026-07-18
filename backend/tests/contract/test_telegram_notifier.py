@@ -38,7 +38,8 @@ class TestTelegramNotifier:
         mock_client_instance.post.assert_called_once()
         call_kwargs = mock_client_instance.post.call_args.kwargs
         assert call_kwargs["json"]["chat_id"] == 12345
-        assert "Price Drop" in call_kwargs["json"]["text"] or "drop" in call_kwargs["json"]["text"].lower()
+        text = call_kwargs["json"]["text"]
+        assert "Price Drop" in text or "drop" in text.lower()
 
     @pytest.mark.asyncio
     async def test_sends_new_listing_message(self) -> None:

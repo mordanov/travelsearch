@@ -1,6 +1,5 @@
 import uuid
 from datetime import datetime
-from typing import Any
 
 import structlog
 from sqlalchemy import func, select

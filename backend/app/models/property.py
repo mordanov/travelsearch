@@ -10,7 +10,9 @@ from app.core.database import Base
 
 class Property(Base):
     __tablename__ = "properties"
-    __table_args__ = (UniqueConstraint("provider", "provider_property_id", name="uq_property_identity"),)
+    __table_args__ = (
+        UniqueConstraint("provider", "provider_property_id", name="uq_property_identity"),
+    )
 
     id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     provider: Mapped[str] = mapped_column(String(50), nullable=False)

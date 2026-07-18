@@ -1,6 +1,6 @@
 """Unit tests for property worker logic."""
 import uuid
-from datetime import date, datetime, timedelta
+from datetime import date, datetime
 from decimal import Decimal
 from unittest.mock import AsyncMock, MagicMock, patch
 

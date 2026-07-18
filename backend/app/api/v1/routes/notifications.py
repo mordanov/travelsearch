@@ -1,4 +1,3 @@
-from typing import Literal
 
 import structlog
 from fastapi import APIRouter, Query

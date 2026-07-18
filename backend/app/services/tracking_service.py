@@ -1,6 +1,5 @@
 import uuid
 from datetime import datetime, timedelta
-from typing import Any
 
 import structlog
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -40,7 +39,10 @@ def _validate_interval(interval_hours: int) -> None:
 
 def _telegram_warning(user: User) -> str | None:
     if not user.telegram_chat_id:
-        return "Telegram is not linked. Notifications will be recorded in-app but not sent until you link your Telegram account."
+        return (
+            "Telegram is not linked. Notifications will be recorded in-app but not sent "
+            "until you link your Telegram account."
+        )
     return None
 
 

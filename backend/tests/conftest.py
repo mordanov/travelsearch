@@ -1,4 +1,3 @@
-import asyncio
 import os
 from collections.abc import AsyncGenerator
 from typing import Any
@@ -25,7 +24,7 @@ _test_session_factory = async_sessionmaker(
 
 
 @pytest_asyncio.fixture(scope="session", autouse=True)
-async def create_tables() -> AsyncGenerator[None, None]:
+async def create_tables() -> AsyncGenerator[None]:
     async with _test_engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
     yield
@@ -34,7 +33,7 @@ async def create_tables() -> AsyncGenerator[None, None]:
 
 
 @pytest_asyncio.fixture
-async def db_session() -> AsyncGenerator[AsyncSession, None]:
+async def db_session() -> AsyncGenerator[AsyncSession]:
     async with _test_session_factory() as session:
         async with session.begin():
             yield session
@@ -54,11 +53,11 @@ def redis_mock() -> AsyncMock:
 
 
 @pytest_asyncio.fixture
-async def client(db_session: AsyncSession, redis_mock: AsyncMock) -> AsyncGenerator[AsyncClient, None]:
-    async def override_get_db() -> AsyncGenerator[AsyncSession, None]:
+async def client(db_session: AsyncSession, redis_mock: AsyncMock) -> AsyncGenerator[AsyncClient]:
+    async def override_get_db() -> AsyncGenerator[AsyncSession]:
         yield db_session
 
-    async def override_get_redis() -> AsyncGenerator[Any, None]:
+    async def override_get_redis() -> AsyncGenerator[Any]:
         yield redis_mock
 
     app.dependency_overrides[get_db] = override_get_db

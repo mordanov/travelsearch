@@ -1,5 +1,4 @@
 """Integration tests for search API."""
-import uuid
 from decimal import Decimal
 from unittest.mock import AsyncMock, patch
 
@@ -8,7 +7,7 @@ from httpx import AsyncClient
 
 from app.core.security import hash_password
 from app.models.user import User
-from app.providers.base import PropertyListing, SearchResult, ScrapeStatus
+from app.providers.base import PropertyListing, ScrapeStatus, SearchResult
 
 
 def _make_listing(name: str, provider: str = "booking") -> PropertyListing:

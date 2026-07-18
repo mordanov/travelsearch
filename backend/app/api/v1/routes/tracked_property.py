@@ -6,7 +6,6 @@ from fastapi import APIRouter, HTTPException, status
 
 from app.api.v1.deps import DB, CurrentUser
 from app.repositories import tracking_repository
-from app.repositories.property_repository import get_by_id as get_property_by_id
 from app.schemas.tracked_property import (
     CreateTrackedPropertyRequest,
     TrackedPropertyListResponse,
@@ -47,9 +46,9 @@ async def create(
     except (TrackingLimitExceededError, InvalidIntervalError) as exc:
         raise HTTPException(
             status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, detail=str(exc)
-        )
+        ) from exc
     except TrackingNotFoundError as exc:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(exc))
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(exc)) from exc
 
     return TrackedPropertyResponse(
         id=tp.id,
@@ -98,4 +97,4 @@ async def delete_tracked(
         await remove_tracked_property(db, current_user.id, tracked_property_id)
         await db.commit()
     except TrackingNotFoundError as exc:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(exc))
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(exc)) from exc

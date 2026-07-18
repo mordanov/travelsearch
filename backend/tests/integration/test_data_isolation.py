@@ -7,7 +7,7 @@ from httpx import AsyncClient
 
 from app.core.security import hash_password
 from app.models.user import User
-from app.providers.base import PropertyListing, SearchResult, ScrapeStatus
+from app.providers.base import PropertyListing, ScrapeStatus, SearchResult
 
 
 @pytest.fixture
