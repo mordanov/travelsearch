@@ -3,6 +3,7 @@
 Unit tests mock all DB calls and do not need a live PostgreSQL connection.
 This override prevents the root conftest from attempting to connect.
 """
+
 import pytest
 
 

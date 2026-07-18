@@ -13,6 +13,7 @@ log = structlog.get_logger(__name__)
 
 # --- TrackedSearch ---
 
+
 async def create_tracked_search(
     db: AsyncSession,
     user_id: uuid.UUID,
@@ -146,6 +147,7 @@ async def upsert_seen_property(
 
 
 # --- TrackedProperty ---
+
 
 async def create_tracked_property(
     db: AsyncSession,

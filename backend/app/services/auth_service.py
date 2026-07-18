@@ -16,9 +16,7 @@ log = structlog.get_logger(__name__)
 REVOKED_RT_PREFIX = "revoked_rt:"
 
 
-async def authenticate_user(
-    db: AsyncSession, email: str, password: str
-) -> User | None:
+async def authenticate_user(db: AsyncSession, email: str, password: str) -> User | None:
     user = await user_repository.get_by_email(db, email)
     if user is None or not user.is_active:
         return None
@@ -66,7 +64,8 @@ async def refresh_access_token(
 
 
 async def revoke_refresh_token(
-    refresh_token: str, redis: aioredis.Redis  # type: ignore[type-arg]
+    refresh_token: str,
+    redis: aioredis.Redis,  # type: ignore[type-arg]
 ) -> None:
     """Revoke a refresh token by its jti. Used on logout."""
     try:
@@ -79,6 +78,7 @@ async def revoke_refresh_token(
         return
 
     from app.core.config import get_settings
+
     settings = get_settings()
     ttl = settings.refresh_token_expire_days * 86400
     await redis.setex(f"{REVOKED_RT_PREFIX}{jti}", ttl, "1")

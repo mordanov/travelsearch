@@ -55,7 +55,6 @@ class ParsedPropertySearch:
 
 
 class Provider(ABC):
-
     @abstractmethod
     async def search(
         self,

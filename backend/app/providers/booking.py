@@ -2,6 +2,7 @@
 BookingProvider — Playwright-based scraper for Booking.com.
 Scraper internals are encapsulated here; no other module imports this class directly.
 """
+
 import re
 from datetime import date
 from decimal import Decimal
@@ -23,7 +24,6 @@ log = structlog.get_logger(__name__)
 
 
 class BookingProvider(Provider):
-
     async def search(
         self,
         destination: str,
@@ -119,7 +119,6 @@ class BookingProvider(Provider):
     ) -> list[PropertyListing]:
         listings = []
         try:
-
             p = page  # type: ignore[assignment]
             cards = await p.query_selector_all('[data-testid="property-card"]')  # type: ignore[attr-defined]
             nights = (check_out - check_in).days or 1

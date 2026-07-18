@@ -1,4 +1,5 @@
 """Unit tests for search diff logic (compute_search_diff)."""
+
 import uuid
 from decimal import Decimal
 from unittest.mock import MagicMock
@@ -25,7 +26,6 @@ def _make_seen(min_price: float) -> MagicMock:
 
 
 class TestComputeSearchDiff:
-
     def test_empty_listings_safe_discard(self) -> None:
         events = compute_search_diff({}, {})
         assert events == []

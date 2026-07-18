@@ -19,7 +19,6 @@ class NotificationMessage:
 
 
 class Notifier(ABC):
-
     @abstractmethod
     async def send(
         self,

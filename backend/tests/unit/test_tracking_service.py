@@ -1,4 +1,5 @@
 """Unit tests for TrackingService."""
+
 import uuid
 from datetime import datetime
 from unittest.mock import AsyncMock, MagicMock, patch
@@ -37,7 +38,6 @@ def _make_tracked_search() -> MagicMock:
 
 
 class TestCreateTrackedSearch:
-
     @pytest.mark.asyncio
     async def test_creates_new_tracked_search(self) -> None:
         user = _make_user()
@@ -121,7 +121,6 @@ class TestCreateTrackedSearch:
 
 
 class TestRemoveTrackedSearch:
-
     @pytest.mark.asyncio
     async def test_deactivates_on_remove(self) -> None:
         user_id = uuid.uuid4()

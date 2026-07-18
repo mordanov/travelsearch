@@ -2,6 +2,7 @@
 arq job: re-run TrackedSearch and diff against baseline.
 Safe-discard invariant: never write to DB if scrape status != OK.
 """
+
 from dataclasses import dataclass
 from datetime import datetime, timedelta
 from decimal import Decimal

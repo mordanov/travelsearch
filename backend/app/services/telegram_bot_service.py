@@ -40,7 +40,9 @@ async def _send_reply(chat_id: int, text: str) -> None:
 
 
 async def handle_update(
-    update: dict[str, Any], db: AsyncSession, redis: aioredis.Redis  # type: ignore[type-arg]
+    update: dict[str, Any],
+    db: AsyncSession,
+    redis: aioredis.Redis,  # type: ignore[type-arg]
 ) -> None:
     message = update.get("message") or update.get("edited_message")
     if not message:
@@ -68,7 +70,10 @@ async def handle_update(
 
 
 async def _handle_start(
-    chat_id: int, code: str, db: AsyncSession, redis: aioredis.Redis  # type: ignore[type-arg]
+    chat_id: int,
+    code: str,
+    db: AsyncSession,
+    redis: aioredis.Redis,  # type: ignore[type-arg]
 ) -> None:
     if not code:
         await _send_reply(chat_id, "Welcome! Use the app to generate a link code.")
@@ -112,6 +117,7 @@ _ALLOWED_URL_HOSTS = (
 def _is_allowed_url(url: str) -> bool:
     """SEC-003: allowlist check — only booking.com and airbnb.com domains accepted."""
     from urllib.parse import urlparse
+
     try:
         parsed = urlparse(url)
         # Require https and a recognised host
@@ -132,9 +138,7 @@ async def _handle_follow(chat_id: int, url: str, db: AsyncSession) -> None:
 
     # SEC-003: reject non-Booking/Airbnb URLs before any provider parsing
     if not _is_allowed_url(url):
-        await _send_reply(
-            chat_id, "Only Booking.com and Airbnb links are supported."
-        )
+        await _send_reply(chat_id, "Only Booking.com and Airbnb links are supported.")
         return
 
     user = await user_repository.get_by_telegram_chat_id(db, chat_id)
@@ -165,7 +169,6 @@ async def _handle_follow(chat_id: int, url: str, db: AsyncSession) -> None:
             "Please send a URL that includes check-in and check-out dates.",
         )
         return
-
 
     # Find or create property by provider identity
     from sqlalchemy import select
@@ -281,7 +284,7 @@ async def _handle_unfollow(chat_id: int, url: str, db: AsyncSession) -> None:
     else:
         await _send_reply(
             chat_id,
-            "Could not extract dates from URL. Please include check-in and check-out dates."
+            "Could not extract dates from URL. Please include check-in and check-out dates.",
         )
 
 
@@ -300,6 +303,7 @@ async def _handle_list(chat_id: int, db: AsyncSession) -> None:
         lines.append("<b>Tracked Searches:</b>")
         for ts in searches[:10]:
             from app.repositories.search_repository import get_search
+
             search = await get_search(db, ts.search_id)
             dest = search.destination if search else "?"
             lines.append(f"• {dest} (every {ts.interval_hours}h)")
@@ -313,6 +317,7 @@ async def _handle_list(chat_id: int, db: AsyncSession) -> None:
         from sqlalchemy import select
 
         from app.models.property import Property
+
         for tp in properties[:10]:
             result = await db.execute(select(Property).where(Property.id == tp.property_id))
             prop = result.scalar_one_or_none()

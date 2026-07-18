@@ -1,4 +1,5 @@
 """Integration tests for TrackedSearch API."""
+
 from decimal import Decimal
 from unittest.mock import AsyncMock, patch
 
@@ -66,7 +67,6 @@ async def search_id(client: AsyncClient, auth_token2: str) -> str:
 
 
 class TestTrackedSearchAPI:
-
     @pytest.mark.asyncio
     async def test_create_tracked_search(
         self, client: AsyncClient, test_user2: User, auth_token2: str, search_id: str

@@ -58,9 +58,7 @@ async def create_tracked_search(
     if search is None or search.user_id != user.id:
         raise TrackingNotFoundError("Search not found")
 
-    existing = await tracking_repository.get_tracked_search_by_search_id(
-        db, user.id, search_id
-    )
+    existing = await tracking_repository.get_tracked_search_by_search_id(db, user.id, search_id)
     if existing is not None:
         existing.interval_hours = interval_hours
         existing.next_run_at = datetime.utcnow() + timedelta(hours=interval_hours)
@@ -136,9 +134,7 @@ async def create_tracked_property(
 async def remove_tracked_property(
     db: AsyncSession, user_id: uuid.UUID, tracked_property_id: uuid.UUID
 ) -> None:
-    tp = await tracking_repository.get_tracked_property_by_id(
-        db, tracked_property_id, user_id
-    )
+    tp = await tracking_repository.get_tracked_property_by_id(db, tracked_property_id, user_id)
     if tp is None:
         raise TrackingNotFoundError("Tracked property not found")
     await tracking_repository.deactivate_tracked_property(db, tp)

@@ -1,4 +1,5 @@
 """Contract tests for BookingProvider against recorded fixtures."""
+
 from datetime import date
 from pathlib import Path
 from unittest.mock import AsyncMock, patch
@@ -12,7 +13,6 @@ FIXTURES_DIR = Path(__file__).parent / "fixtures" / "booking"
 
 
 class TestBookingProviderContract:
-
     def test_parse_url_valid_booking_url(self) -> None:
         provider = BookingProvider()
         url = (

@@ -24,6 +24,7 @@ def _get_provider_registry() -> dict[str, Provider]:
     # Providers registered here; route imports only the base interface (constitution I)
     from app.providers.airbnb import AirbnbProvider
     from app.providers.booking import BookingProvider
+
     return {
         "booking": BookingProvider(),
         "airbnb": AirbnbProvider(),

@@ -1,4 +1,5 @@
 """CLI commands for user and system management."""
+
 import asyncio
 
 import structlog

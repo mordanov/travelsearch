@@ -8,7 +8,6 @@ log = structlog.get_logger(__name__)
 
 
 class TelegramNotifier(Notifier):
-
     async def send(self, telegram_chat_id: int, message: NotificationMessage) -> bool:
         settings = get_settings()
         if not settings.telegram_bot_token:

@@ -1,4 +1,5 @@
 """Integration tests for Telegram linking flow."""
+
 from unittest.mock import AsyncMock, patch
 
 import pytest
@@ -29,7 +30,6 @@ async def link_token(client: AsyncClient, link_user: User) -> str:
 
 
 class TestTelegramLinking:
-
     @pytest.mark.asyncio
     async def test_generate_link_code(
         self, client: AsyncClient, link_user: User, link_token: str, redis_mock: AsyncMock

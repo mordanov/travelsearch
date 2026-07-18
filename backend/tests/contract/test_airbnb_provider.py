@@ -1,4 +1,5 @@
 """Contract tests for AirbnbProvider against recorded fixtures."""
+
 from datetime import date
 from unittest.mock import AsyncMock, patch
 
@@ -9,12 +10,10 @@ from app.providers.base import ScrapeStatus
 
 
 class TestAirbnbProviderContract:
-
     def test_parse_url_valid_airbnb_url(self) -> None:
         provider = AirbnbProvider()
         url = (
-            "https://www.airbnb.com/rooms/12345678"
-            "?checkin=2026-09-01&checkout=2026-09-07&adults=2"
+            "https://www.airbnb.com/rooms/12345678?checkin=2026-09-01&checkout=2026-09-07&adults=2"
         )
         result = provider.parse_url(url)
         assert result is not None

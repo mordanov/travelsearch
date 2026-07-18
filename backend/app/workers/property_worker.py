@@ -2,6 +2,7 @@
 arq job: re-check TrackedProperty for price drops.
 Safe-discard invariant: never write to DB if scrape status != OK.
 """
+
 from datetime import datetime, timedelta
 from decimal import Decimal
 from typing import Any

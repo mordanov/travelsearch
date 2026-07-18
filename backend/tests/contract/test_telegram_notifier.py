@@ -1,4 +1,5 @@
 """Contract tests for TelegramNotifier — mocked httpx."""
+
 from decimal import Decimal
 from unittest.mock import AsyncMock, MagicMock, patch
 
@@ -9,7 +10,6 @@ from app.notifiers.telegram import TelegramNotifier
 
 
 class TestTelegramNotifier:
-
     @pytest.mark.asyncio
     async def test_sends_price_drop_message(self) -> None:
         notifier = TelegramNotifier()

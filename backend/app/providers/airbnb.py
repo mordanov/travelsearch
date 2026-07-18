@@ -2,6 +2,7 @@
 AirbnbProvider — Playwright-based scraper for Airbnb.
 Scraper internals are encapsulated here; no other module imports this class directly.
 """
+
 import re
 from datetime import date
 from decimal import Decimal
@@ -23,7 +24,6 @@ log = structlog.get_logger(__name__)
 
 
 class AirbnbProvider(Provider):
-
     async def search(
         self,
         destination: str,
@@ -140,7 +140,7 @@ class AirbnbProvider(Provider):
                         'span[data-testid="price-availability-row"]'
                     )
                     if not price_el:
-                        price_el = await card.query_selector('div._1jo4hgw')
+                        price_el = await card.query_selector("div._1jo4hgw")
                     price_text = (await price_el.inner_text()).strip() if price_el else "0"
                     total_price = self._parse_price(price_text)
                     price_per_night = Decimal(str(round(float(total_price) / nights, 2)))
@@ -230,7 +230,7 @@ class AirbnbProvider(Provider):
                         )
 
                     nights = (check_out - check_in).days or 1
-                    price_el = await page.query_selector('div._1ju0tuo')
+                    price_el = await page.query_selector("div._1ju0tuo")
                     price_text = (await price_el.inner_text()).strip() if price_el else "0"
                     total_price = self._parse_price(price_text)
                     price_per_night = Decimal(str(round(float(total_price) / nights, 2)))

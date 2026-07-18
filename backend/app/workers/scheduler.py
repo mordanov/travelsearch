@@ -15,6 +15,7 @@ async def startup(ctx: dict) -> None:
     # Constitution I: provider registry built once at worker startup, injected via ctx
     from app.providers.airbnb import AirbnbProvider
     from app.providers.booking import BookingProvider
+
     ctx["providers"] = {"booking": BookingProvider(), "airbnb": AirbnbProvider()}
 
 

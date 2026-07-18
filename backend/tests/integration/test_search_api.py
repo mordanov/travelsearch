@@ -1,4 +1,5 @@
 """Integration tests for search API."""
+
 from decimal import Decimal
 from unittest.mock import AsyncMock, patch
 
@@ -45,7 +46,6 @@ async def auth_token(client: AsyncClient, test_user: User) -> str:
 
 
 class TestSearchAPI:
-
     @pytest.mark.asyncio
     async def test_search_returns_202(
         self, client: AsyncClient, test_user: User, auth_token: str
@@ -92,9 +92,7 @@ class TestSearchAPI:
         booking_result = SearchResult(
             status=ScrapeStatus.OK, listings=[_make_listing("Apt 1")], provider="booking"
         )
-        airbnb_result = SearchResult(
-            status=ScrapeStatus.BLOCKED, listings=[], provider="airbnb"
-        )
+        airbnb_result = SearchResult(status=ScrapeStatus.BLOCKED, listings=[], provider="airbnb")
 
         with (
             patch("app.providers.booking.BookingProvider") as MockBooking,
@@ -163,9 +161,7 @@ class TestSearchAPI:
         assert data["page"] == 1
 
     @pytest.mark.asyncio
-    async def test_csv_export(
-        self, client: AsyncClient, test_user: User, auth_token: str
-    ) -> None:
+    async def test_csv_export(self, client: AsyncClient, test_user: User, auth_token: str) -> None:
         listing = _make_listing("CSV Test Hotel")
         booking_result = SearchResult(
             status=ScrapeStatus.OK, listings=[listing], provider="booking"

@@ -1,4 +1,5 @@
 """Integration test: verify per-user data isolation (FR-015)."""
+
 from decimal import Decimal
 from unittest.mock import AsyncMock, patch
 
@@ -51,7 +52,6 @@ async def token_b(client: AsyncClient, user_b: User) -> str:
 
 
 class TestDataIsolation:
-
     @pytest.mark.asyncio
     async def test_tracked_searches_isolated(
         self,

@@ -1,4 +1,5 @@
 """Contract-test conftest: no live DB needed."""
+
 import pytest
 
 

@@ -1,4 +1,5 @@
 """Integration tests for Telegram webhook."""
+
 from unittest.mock import AsyncMock, patch
 
 import pytest
@@ -33,7 +34,6 @@ def _make_update(text: str, chat_id: int = 99999) -> dict:
 
 
 class TestTelegramWebhook:
-
     @pytest.mark.asyncio
     async def test_invalid_secret_returns_403(self, client: AsyncClient) -> None:
         resp = await client.post(

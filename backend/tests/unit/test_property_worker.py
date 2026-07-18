@@ -1,4 +1,5 @@
 """Unit tests for property worker logic."""
+
 import uuid
 from datetime import date, datetime
 from decimal import Decimal
@@ -41,7 +42,6 @@ def _make_tracked_property(min_price: float | None, check_in: date | None = None
 
 
 class TestPropertyWorkerLogic:
-
     @pytest.mark.asyncio
     async def test_price_drop_creates_notification(self) -> None:
         from app.workers.property_worker import _process_tracked_property
