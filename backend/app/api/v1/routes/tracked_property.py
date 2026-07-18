@@ -1,5 +1,6 @@
 import uuid
 from datetime import datetime
+from decimal import Decimal
 
 import structlog
 from fastapi import APIRouter, HTTPException, status
@@ -57,7 +58,7 @@ async def create(
         check_out=tp.check_out.date(),
         interval_hours=tp.interval_hours,
         is_active=tp.is_active,
-        min_price_seen=tp.min_price_seen,
+        min_price_seen=Decimal(str(tp.min_price_seen)) if tp.min_price_seen is not None else None,
         last_successful_run_at=tp.last_successful_run_at,
         next_run_at=tp.next_run_at,
         telegram_warning=warning,
@@ -78,7 +79,9 @@ async def list_tracked(
             check_out=tp.check_out.date(),
             interval_hours=tp.interval_hours,
             is_active=tp.is_active,
-            min_price_seen=tp.min_price_seen,
+            min_price_seen=(
+                Decimal(str(tp.min_price_seen)) if tp.min_price_seen is not None else None
+            ),
             last_successful_run_at=tp.last_successful_run_at,
             next_run_at=tp.next_run_at,
         )

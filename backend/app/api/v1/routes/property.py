@@ -1,4 +1,5 @@
 import uuid
+from decimal import Decimal
 
 import structlog
 from fastapi import APIRouter, HTTPException, status
@@ -27,8 +28,8 @@ async def get_property(
         property_id=prop.id,
         provider=prop.provider,
         name=prop.name,
-        price_per_night=0,
-        total_price=0,
+        price_per_night=Decimal("0"),
+        total_price=Decimal("0"),
         bedrooms=prop.bedrooms,
         bathrooms=prop.bathrooms,
         amenities=amenities,

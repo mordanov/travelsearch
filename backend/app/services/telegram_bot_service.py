@@ -42,7 +42,7 @@ async def _send_reply(chat_id: int, text: str) -> None:
 async def handle_update(
     update: dict[str, Any],
     db: AsyncSession,
-    redis: aioredis.Redis,  # type: ignore[type-arg]
+    redis: aioredis.Redis,
 ) -> None:
     message = update.get("message") or update.get("edited_message")
     if not message:
@@ -73,7 +73,7 @@ async def _handle_start(
     chat_id: int,
     code: str,
     db: AsyncSession,
-    redis: aioredis.Redis,  # type: ignore[type-arg]
+    redis: aioredis.Redis,
 ) -> None:
     if not code:
         await _send_reply(chat_id, "Welcome! Use the app to generate a link code.")

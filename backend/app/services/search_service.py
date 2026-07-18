@@ -3,6 +3,7 @@ import csv
 import io
 import uuid
 from datetime import date
+from decimal import Decimal
 from typing import Any
 
 import redis.asyncio as aioredis
@@ -26,7 +27,7 @@ SEARCH_STATUS_KEY = "search:status:{search_id}"
 
 async def run_search(
     db: AsyncSession,
-    redis: aioredis.Redis,  # type: ignore[type-arg]
+    redis: aioredis.Redis,
     user_id: uuid.UUID,
     destination: str,
     check_in: date,
@@ -188,8 +189,8 @@ async def get_results_page(
                 property_id=prop.id,
                 provider=prop.provider,
                 name=prop.name,
-                price_per_night=sr.price_per_night,
-                total_price=sr.total_price,
+                price_per_night=Decimal(str(sr.price_per_night)),
+                total_price=Decimal(str(sr.total_price)),
                 rating=float(sr.rating) if sr.rating is not None else None,
                 bedrooms=prop.bedrooms,
                 bathrooms=prop.bathrooms,

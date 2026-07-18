@@ -53,4 +53,4 @@ async def get_current_user(
 
 CurrentUser = Annotated[User, Depends(get_current_user)]
 DB = Annotated[AsyncSession, Depends(get_db)]
-Redis = Annotated[aioredis.Redis, Depends(get_redis)]  # type: ignore[type-arg]
+Redis = Annotated[aioredis.Redis, Depends(get_redis)]

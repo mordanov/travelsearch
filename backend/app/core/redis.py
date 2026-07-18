@@ -17,11 +17,11 @@ def _get_pool() -> aioredis.ConnectionPool:
     return _pool
 
 
-def get_redis_client() -> aioredis.Redis:  # type: ignore[type-arg]
+def get_redis_client() -> aioredis.Redis:
     return aioredis.Redis(connection_pool=_get_pool())
 
 
-async def get_redis() -> AsyncGenerator[aioredis.Redis]:  # type: ignore[type-arg]
+async def get_redis() -> AsyncGenerator[aioredis.Redis]:
     client = get_redis_client()
     try:
         yield client

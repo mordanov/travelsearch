@@ -33,7 +33,7 @@ async def create_tokens(user: User) -> dict[str, str]:
 
 async def refresh_access_token(
     refresh_token: str,
-    redis: aioredis.Redis,  # type: ignore[type-arg]
+    redis: aioredis.Redis,
 ) -> dict[str, str] | None:
     """Rotate refresh token: validate old token, revoke it, issue new access+refresh pair."""
     try:
@@ -65,7 +65,7 @@ async def refresh_access_token(
 
 async def revoke_refresh_token(
     refresh_token: str,
-    redis: aioredis.Redis,  # type: ignore[type-arg]
+    redis: aioredis.Redis,
 ) -> None:
     """Revoke a refresh token by its jti. Used on logout."""
     try:

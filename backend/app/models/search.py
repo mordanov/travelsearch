@@ -1,5 +1,6 @@
 import uuid
 from datetime import datetime
+from typing import Any
 
 from sqlalchemy import DateTime, ForeignKey, Integer, Numeric, SmallInteger, String, Text, func
 from sqlalchemy.dialects.postgresql import ARRAY, JSONB, UUID
@@ -20,10 +21,10 @@ class Search(Base):
     check_out: Mapped[datetime] = mapped_column(DateTime(timezone=False), nullable=False)
     guests: Mapped[int] = mapped_column(SmallInteger, nullable=False, default=1)
     providers: Mapped[list[str]] = mapped_column(ARRAY(String(50)), nullable=False)
-    filters: Mapped[dict | None] = mapped_column(JSONB, nullable=True)
+    filters: Mapped[dict[str, Any] | None] = mapped_column(JSONB, nullable=True)
     status: Mapped[str] = mapped_column(String(20), nullable=False, default="pending")
     result_count: Mapped[int | None] = mapped_column(Integer, nullable=True)
-    provider_statuses: Mapped[dict | None] = mapped_column(JSONB, nullable=True)
+    provider_statuses: Mapped[dict[str, Any] | None] = mapped_column(JSONB, nullable=True)
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), nullable=False, server_default=func.now()
     )
@@ -45,7 +46,7 @@ class SearchResult(Base):
     rating: Mapped[float | None] = mapped_column(Numeric(3, 2), nullable=True)
     distance_km: Mapped[float | None] = mapped_column(Numeric(6, 2), nullable=True)
     free_cancellation: Mapped[bool | None] = mapped_column(nullable=True)
-    raw_snapshot: Mapped[dict | None] = mapped_column(JSONB, nullable=True)
+    raw_snapshot: Mapped[dict[str, Any] | None] = mapped_column(JSONB, nullable=True)
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), nullable=False, server_default=func.now()
     )

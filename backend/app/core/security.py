@@ -12,12 +12,13 @@ _ph = PasswordHasher()
 
 
 def hash_password(password: str) -> str:
-    return _ph.hash(password)
+    return str(_ph.hash(password))
 
 
 def verify_password(plain: str, hashed: str) -> bool:
     try:
-        return _ph.verify(hashed, plain)
+        result: bool = _ph.verify(hashed, plain)
+        return result
     except argon2.exceptions.VerifyMismatchError:
         return False
     except argon2.exceptions.VerificationError:

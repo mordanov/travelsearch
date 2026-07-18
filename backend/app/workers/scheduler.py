@@ -1,3 +1,5 @@
+from typing import Any
+
 from arq import cron
 from arq.connections import RedisSettings
 
@@ -11,7 +13,7 @@ def _redis_settings() -> RedisSettings:
     return RedisSettings.from_dsn(settings.redis_url)
 
 
-async def startup(ctx: dict) -> None:
+async def startup(ctx: dict[str, Any]) -> None:
     # Constitution I: provider registry built once at worker startup, injected via ctx
     from app.providers.airbnb import AirbnbProvider
     from app.providers.booking import BookingProvider

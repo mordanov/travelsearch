@@ -1,4 +1,5 @@
 import uuid
+from collections.abc import Iterator
 from typing import Literal
 
 import structlog
@@ -116,7 +117,7 @@ async def export_csv(
     if csv_content is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Search not found")
 
-    def _iter() -> bytes:
+    def _iter() -> Iterator[str]:
         yield csv_content
 
     return StreamingResponse(

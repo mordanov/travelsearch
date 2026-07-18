@@ -59,7 +59,7 @@ class AirbnbProvider(Provider):
             from playwright.async_api import async_playwright
 
             async with async_playwright() as p:
-                browser = await p.chromium.launch(headless=True, proxy=proxy)  # type: ignore[arg-type]
+                browser = await p.chromium.launch(headless=True, proxy=proxy)
                 try:
                     context = await browser.new_context(
                         user_agent=(
@@ -115,7 +115,7 @@ class AirbnbProvider(Provider):
         listings = []
         nights = (check_out - check_in).days or 1
         try:
-            p = page  # type: ignore[assignment]
+            p = page
             cards = await p.query_selector_all('[itemprop="itemListElement"]')  # type: ignore[attr-defined]
 
             for card in cards[:50]:
@@ -209,7 +209,7 @@ class AirbnbProvider(Provider):
             from playwright.async_api import async_playwright
 
             async with async_playwright() as p:
-                browser = await p.chromium.launch(headless=True, proxy=proxy)  # type: ignore[arg-type]
+                browser = await p.chromium.launch(headless=True, proxy=proxy)
                 try:
                     context = await browser.new_context(locale="en-US")
                     page = await context.new_page()

@@ -1,4 +1,5 @@
 import uuid
+from decimal import Decimal
 
 import structlog
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -29,8 +30,10 @@ async def list_notifications(
             type=log_row.type,
             property_name=prop_name,
             property_url=log_row.property_url,
-            price_before=log_row.price_before,
-            price_after=log_row.price_after,
+            price_before=(
+                Decimal(str(log_row.price_before)) if log_row.price_before is not None else None
+            ),
+            price_after=Decimal(str(log_row.price_after)),
             sent_at=log_row.sent_at,
             delivery_status=log_row.delivery_status,
         )

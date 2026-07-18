@@ -1,5 +1,6 @@
 import uuid
 from datetime import datetime
+from typing import Any
 
 from sqlalchemy import DateTime, Numeric, SmallInteger, String, Text, UniqueConstraint, func
 from sqlalchemy.dialects.postgresql import JSONB, UUID
@@ -24,7 +25,7 @@ class Property(Base):
     longitude: Mapped[float | None] = mapped_column(Numeric(9, 6), nullable=True)
     bedrooms: Mapped[int | None] = mapped_column(SmallInteger, nullable=True)
     bathrooms: Mapped[int | None] = mapped_column(SmallInteger, nullable=True)
-    amenities: Mapped[dict | None] = mapped_column(JSONB, nullable=True)
+    amenities: Mapped[dict[str, Any] | None] = mapped_column(JSONB, nullable=True)
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), nullable=False, server_default=func.now()
     )
