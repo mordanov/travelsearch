@@ -31,7 +31,17 @@
 
 *GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
 
-[Gates determined based on constitution file]
+Verify compliance with each principle before proceeding:
+
+- [ ] **I. Provider & Notifier Isolation** — Backend only touches Provider/FlightProvider/Notifier interfaces; no direct calls to provider or notifier implementations.
+- [ ] **II. Single Authority** — All tracking logic (create/remove TrackedSearch/TrackedProperty, dedup, intervals) flows through the Tracking Service; no duplication in API routes or Telegram handler.
+- [ ] **III. Test Coverage** — Feature plan includes unit, integration, provider contract, and notifier contract tests; no live-provider calls in CI.
+- [ ] **IV. Async-Native Stack** — No blocking I/O in async contexts; Playwright async; arq for background jobs; no additional brokers.
+- [ ] **V. Safe Scraping** — Incomplete/blocked scrape cycles are discarded; trip search runs FlightProvider.explore() first (≤20 candidates) before any accommodation scraping.
+- [ ] **VI. Strict Typing** — mypy strict + Ruff on backend/scraper; TypeScript strict on frontend; all secrets via .env; SQLAlchemy 2.x + Alembic; Pydantic v2.
+- [ ] **VII. Docker-First** — Feature is runnable via `docker compose up`; no deployment-time surprises outside Docker Compose.
+
+> If any gate fails, document the violation in the Complexity Tracking table with justification.
 
 ## Project Structure
 
