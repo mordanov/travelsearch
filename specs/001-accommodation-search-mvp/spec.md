@@ -113,8 +113,8 @@ be tested separately).
    duplicate is created.
 
 5. **Given** a followed property, **When** a background cycle finds today's price lower
-   than the price recorded when tracking started, **Then** a Telegram alert is sent showing
-   old price, new price, and the link.
+   than the lowest ever recorded price for that property, **Then** a Telegram alert is
+   sent showing the previous minimum price, the new price, and the link.
 
 6. **Given** a followed property whose check-in date has passed, **When** the scheduler
    runs, **Then** tracking is automatically deactivated.
@@ -180,7 +180,10 @@ complete linking. After linking, the bot responds to `/list` with their tracked 
 - **FR-004**: The user MUST be able to export search results to CSV.
 - **FR-005**: The user MUST be able to track a saved search with a configurable re-run
   interval; the system re-runs the search in the background and alerts on new or
-  price-dropped listings.
+  price-dropped listings. Valid intervals are a fixed preset list: 6h, 12h, 24h, 48h.
+  If Telegram is not linked, tracking is still enabled and notification history is
+  recorded in-app, but a warning is shown that Telegram alerts will not fire until
+  the account is linked.
 - **FR-006**: The user MUST be able to untrack a saved search.
 - **FR-007**: The user MUST be able to track a specific property from the results table,
   the property detail page, or via the Telegram bot's `/follow` command.
@@ -189,6 +192,8 @@ complete linking. After linking, the bot responds to `/list` with their tracked 
 - **FR-009**: Tracking logic (create/remove tracked search, create/remove tracked property,
   dedup, interval validation) MUST be the same whether triggered from the web UI or the
   Telegram bot — no duplicated business logic.
+- **FR-016**: A user MUST NOT be able to exceed 10 active tracked searches or 20 active
+  tracked properties. Attempts beyond these limits MUST return a clear error message.
 - **FR-010**: The system MUST expose a Tracked dashboard showing all active tracked
   searches and tracked properties with current status.
 - **FR-011**: The system MUST expose a Notification history view showing every alert ever
@@ -219,8 +224,9 @@ complete linking. After linking, the bot responds to `/list` with their tracked 
 ### Measurable Outcomes
 
 - **SC-001**: A user can complete a multi-provider accommodation search (destination +
-  dates + filters → merged results) in a single session, with results appearing within
-  a reasonable wait time showing a progress indicator.
+  dates + filters → merged results) in a single session. Each provider completes within
+  2 minutes; the full merged result set is available within 3 minutes of submission.
+  A progress indicator is shown throughout.
 - **SC-002**: All results from both providers appear in a single unified table; the user
   never needs to visit Booking or Airbnb to see the same data.
 - **SC-003**: A tracked search detects and notifies the user of a new or cheaper matching
@@ -233,6 +239,16 @@ complete linking. After linking, the bot responds to `/list` with their tracked 
   setup steps beyond providing `.env` values.
 - **SC-007**: Adding a new accommodation provider requires no changes to backend API
   contracts or routes — only a new provider implementation.
+
+## Clarifications
+
+### Session 2026-07-19
+
+- Q: Should the system allow tracking to be enabled before Telegram is linked? → A: Yes — tracking is allowed without Telegram linked. The app warns the user they won't receive notifications until they link. In-app notification history (FR-011) still records all alerts.
+- Q: What are the valid interval choices for a tracked search re-run? → A: Fixed preset list — 6h / 12h / 24h / 48h.
+- Q: For a tracked property, should price drop alerts use the price at tracking start or the lowest ever recorded? → A: Lowest ever recorded price — same logic as tracked searches.
+- Q: Should there be a per-user limit on tracked searches and tracked properties? → A: Yes — max 10 tracked searches and max 20 tracked properties per user.
+- Q: What is the acceptable maximum wall-clock time for a search to complete? → A: 2 minutes per provider, 3 minutes total.
 
 ## Assumptions
 
