@@ -16,7 +16,7 @@
 set -euo pipefail
 
 # ── Defaults ──────────────────────────────────────────────────────────────────
-PROJECT_NAME="home-resource-consumption"
+PROJECT_NAME="travelsearch-spec-01"
 
 role_to_filename() {
   local role="$1"

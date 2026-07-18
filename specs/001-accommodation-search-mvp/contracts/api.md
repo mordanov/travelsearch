@@ -34,9 +34,11 @@ Refresh token set as `HttpOnly; Secure; SameSite=Strict` cookie (`refresh_token`
 
 ### POST /auth/refresh
 
-Exchange refresh token cookie for a new access token.
+Exchange refresh token cookie for a new access token. Issues a **new** refresh token
+and revokes the old one (rotation per SEC-001). The old refresh token JTI is added to
+the Redis revocation set (`revoked_rt:<jti>`).
 
-**Response 200** — same shape as login 200.
+**Response 200** — same shape as login 200. New `Set-Cookie` replaces previous refresh token.
 **Response 401** — refresh token missing, expired, or revoked.
 
 ---
@@ -46,6 +48,20 @@ Exchange refresh token cookie for a new access token.
 Revoke the refresh token.
 
 **Response 204**.
+
+---
+
+### GET /auth/me
+
+Return the authenticated user's profile. Used by the frontend to determine Telegram
+link status without exposing the raw `telegram_chat_id` (SEC-008).
+
+**Response 200**
+```json
+{"id": "<uuid>", "email": "user@example.com", "telegram_is_linked": true}
+```
+`telegram_is_linked` is `true` if `User.telegram_chat_id` is not NULL; `false` otherwise.
+`telegram_chat_id` MUST NOT appear in this or any other response schema.
 
 ---
 
@@ -82,13 +98,19 @@ Start a new live search.
 
 ### GET /search/{search_id}/status
 
-Poll for search progress.
+Poll for search progress. Includes search criteria so the results page can pass
+`check_in`/`check_out` to `POST /tracked-properties` without requiring React Router
+state (needed when the user navigates directly to the results URL).
 
 **Response 200**
 ```json
 {
   "search_id": "<uuid>",
   "status": "running",
+  "destination": "Barcelona",
+  "check_in": "2026-09-01",
+  "check_out": "2026-09-07",
+  "guests": 2,
   "results_count": 14,
   "provider_statuses": {
     "booking": {"status": "complete", "results": 10},

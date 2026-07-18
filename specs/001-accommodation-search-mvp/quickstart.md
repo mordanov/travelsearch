@@ -12,16 +12,21 @@
 ```bash
 cp .env.example .env
 # Edit .env and fill in:
-DATABASE_URL=postgresql+asyncpg://postgres:postgres@db:5432/travelsearch
+DATABASE_URL=postgresql+asyncpg://travelsearch:CHANGE_ME@db:5432/travelsearch
+POSTGRES_PASSWORD=CHANGE_ME
 REDIS_URL=redis://redis:6379/0
-JWT_SECRET=<at-least-32-random-chars>
+JWT_SECRET=<generate: python -c "import secrets; print(secrets.token_hex(32))">
 JWT_ALGORITHM=HS256
+JWT_ACCESS_TOKEN_EXPIRE_MINUTES=15
+JWT_REFRESH_TOKEN_EXPIRE_DAYS=30
 TELEGRAM_BOT_TOKEN=<from @BotFather>
-TELEGRAM_WEBHOOK_SECRET=<random-string-for-header-validation>
-PROXY_PROVIDER_HOST=<proxy-host>
+TELEGRAM_WEBHOOK_SECRET=<generate: python -c "import secrets; print(secrets.token_hex(32))">
+PROXY_PROVIDER_HOST=<proxy-host:port>
 PROXY_PROVIDER_USER=<proxy-user>
 PROXY_PROVIDER_PASS=<proxy-pass>
-CORS_ORIGINS=http://localhost:3000
+CORS_ORIGINS=https://yourdomain.com
+ENABLE_RAW_SNAPSHOT=false
+APP_ENV=production
 ```
 
 ## Start the full stack
@@ -68,6 +73,28 @@ curl "https://api.telegram.org/bot<TOKEN>/setWebhook" \
   -d "url=https://<your-domain>/api/v1/telegram/webhook" \
   -d "secret_token=<TELEGRAM_WEBHOOK_SECRET>"
 ```
+
+## Telegram webhook secret rotation (RISK-004)
+
+When `TELEGRAM_WEBHOOK_SECRET` must be rotated (e.g. suspected compromise):
+
+1. Generate a new secret:
+   ```bash
+   python -c "import secrets; print(secrets.token_hex(32))"
+   ```
+2. Update `.env` with the new value.
+3. Re-register the webhook with the new secret:
+   ```bash
+   curl "https://api.telegram.org/bot<TOKEN>/setWebhook" \
+     -d "url=https://<your-domain>/api/v1/telegram/webhook" \
+     -d "secret_token=<NEW_TELEGRAM_WEBHOOK_SECRET>"
+   ```
+4. Restart the backend:
+   ```bash
+   docker compose restart backend
+   ```
+
+**Gap window**: During the ~1 minute between step 3 and step 4, incoming Telegram updates will be rejected with 403 (old secret in memory, new secret registered with Telegram). This is acceptable for MVP — no data is lost, Telegram retries undelivered updates.
 
 ## Development without Docker
 
