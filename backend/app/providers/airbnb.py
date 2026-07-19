@@ -49,11 +49,13 @@ class AirbnbProvider(Provider):
         settings = get_settings()
         proxy = None
         if settings.proxy_provider_host:
-            proxy = {
-                "server": f"http://{settings.proxy_provider_host}",
-                "username": settings.proxy_provider_user,
-                "password": settings.proxy_provider_pass,
-            }
+            from playwright.async_api import ProxySettings
+
+            proxy = ProxySettings(
+                server=f"http://{settings.proxy_provider_host}",
+                username=settings.proxy_provider_user,
+                password=settings.proxy_provider_pass,
+            )
 
         try:
             from playwright.async_api import async_playwright
@@ -199,11 +201,13 @@ class AirbnbProvider(Provider):
         settings = get_settings()
         proxy = None
         if settings.proxy_provider_host:
-            proxy = {
-                "server": f"http://{settings.proxy_provider_host}",
-                "username": settings.proxy_provider_user,
-                "password": settings.proxy_provider_pass,
-            }
+            from playwright.async_api import ProxySettings
+
+            proxy = ProxySettings(
+                server=f"http://{settings.proxy_provider_host}",
+                username=settings.proxy_provider_user,
+                password=settings.proxy_provider_pass,
+            )
 
         try:
             from playwright.async_api import async_playwright
