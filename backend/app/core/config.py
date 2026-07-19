@@ -1,7 +1,12 @@
 from functools import lru_cache
 from typing import Any
 
-from pydantic_settings import BaseSettings, EnvSettingsSource, PydanticBaseSettingsSource, SettingsConfigDict
+from pydantic_settings import (
+    BaseSettings,
+    EnvSettingsSource,
+    PydanticBaseSettingsSource,
+    SettingsConfigDict,
+)
 
 
 class _CorsEnvSource(EnvSettingsSource):
