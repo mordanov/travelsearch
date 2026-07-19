@@ -7,8 +7,8 @@ import pytest
 import pytest_asyncio
 from httpx import ASGITransport, AsyncClient
 from sqlalchemy import text
-from sqlalchemy.pool import NullPool
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
+from sqlalchemy.pool import NullPool
 
 from app.core.database import Base, get_db
 from app.core.redis import get_redis
@@ -25,9 +25,7 @@ _TABLE_NAMES = [t.name for t in reversed(Base.metadata.sorted_tables)]
 # One NullPool engine shared across the session — all tests share the same event loop,
 # so there is no cross-loop issue with NullPool (each operation opens+closes its connection).
 _async_engine = create_async_engine(TEST_DATABASE_URL, echo=False, poolclass=NullPool)
-_async_factory = async_sessionmaker(
-    bind=_async_engine, class_=AsyncSession, expire_on_commit=False
-)
+_async_factory = async_sessionmaker(bind=_async_engine, class_=AsyncSession, expire_on_commit=False)
 
 
 @pytest_asyncio.fixture(scope="session", autouse=True)
