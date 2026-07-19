@@ -1,6 +1,5 @@
 import os
 from collections.abc import AsyncGenerator
-from typing import Any
 from unittest.mock import AsyncMock
 
 import pytest
@@ -38,15 +37,15 @@ async def create_tables() -> AsyncGenerator[None]:
 
 
 @pytest_asyncio.fixture
-async def truncate_tables(create_tables: Any) -> AsyncGenerator[None]:
+async def truncate_tables(create_tables: None) -> AsyncGenerator[None]:  # noqa: S608
     yield
     async with _async_engine.begin() as conn:
         for table in _TABLE_NAMES:
-            await conn.execute(text(f'DELETE FROM "{table}"'))
+            await conn.execute(text(f'DELETE FROM "{table}"'))  # noqa: S608
 
 
 @pytest_asyncio.fixture
-async def db_session(truncate_tables: Any) -> AsyncGenerator[AsyncSession]:
+async def db_session(truncate_tables: None) -> AsyncGenerator[AsyncSession]:
     async with _async_factory() as session:
         yield session
 
@@ -68,7 +67,7 @@ async def client(db_session: AsyncSession, redis_mock: AsyncMock) -> AsyncGenera
     async def override_get_db() -> AsyncGenerator[AsyncSession]:
         yield db_session
 
-    async def override_get_redis() -> AsyncGenerator[Any]:
+    async def override_get_redis() -> AsyncGenerator[AsyncMock]:
         yield redis_mock
 
     app.dependency_overrides[get_db] = override_get_db
