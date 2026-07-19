@@ -12,9 +12,10 @@ from app.core.database import Base, get_db
 from app.core.redis import get_redis
 from app.main import app
 
-TEST_DATABASE_URL = os.getenv(
-    "DATABASE_URL_TEST",
-    "postgresql+asyncpg://postgres:postgres@localhost:5432/travelsearch_test",
+TEST_DATABASE_URL = (
+    os.getenv("DATABASE_URL_TEST")
+    or os.getenv("DATABASE_URL")
+    or "postgresql+asyncpg://postgres:postgres@localhost:5432/travelsearch_test"
 )
 
 _test_engine = create_async_engine(TEST_DATABASE_URL, echo=False)
