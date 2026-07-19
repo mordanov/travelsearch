@@ -1,6 +1,19 @@
 from functools import lru_cache
+from typing import Any
 
-from pydantic_settings import BaseSettings, SettingsConfigDict
+from pydantic_settings import BaseSettings, EnvSettingsSource, PydanticBaseSettingsSource, SettingsConfigDict
+
+
+class _CorsEnvSource(EnvSettingsSource):
+    def prepare_field_value(
+        self, field_name: str, field: Any, value: Any, value_is_complex: bool
+    ) -> Any:
+        if field_name == "cors_origins" and isinstance(value, str):
+            stripped = value.strip()
+            if stripped.startswith("["):
+                return super().prepare_field_value(field_name, field, value, value_is_complex)
+            return [origin.strip() for origin in stripped.split(",") if origin.strip()]
+        return super().prepare_field_value(field_name, field, value, value_is_complex)
 
 
 class Settings(BaseSettings):
@@ -34,6 +47,22 @@ class Settings(BaseSettings):
     # App
     environment: str = "development"
     log_level: str = "INFO"
+
+    @classmethod
+    def settings_customise_sources(
+        cls,
+        settings_cls: type[BaseSettings],
+        init_settings: PydanticBaseSettingsSource,
+        env_settings: PydanticBaseSettingsSource,
+        dotenv_settings: PydanticBaseSettingsSource,
+        file_secret_settings: PydanticBaseSettingsSource,
+    ) -> tuple[PydanticBaseSettingsSource, ...]:
+        return (
+            init_settings,
+            _CorsEnvSource(settings_cls),
+            dotenv_settings,
+            file_secret_settings,
+        )
 
 
 @lru_cache
