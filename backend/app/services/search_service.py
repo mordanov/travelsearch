@@ -57,13 +57,12 @@ async def run_search(
 
     provider_results: dict[str, dict[str, Any]] = {}
 
-    async def run_provider(pname: str) -> None:
+    async def scrape_provider(pname: str) -> tuple[str, Any]:
         prov = provider_registry.get(pname)
         if prov is None:
-            provider_results[pname] = {"status": "failed", "results": 0}
-            return
+            return pname, None
         try:
-            result = await prov.search(
+            return pname, await prov.search(
                 destination=destination,
                 check_in=check_in,
                 check_out=check_out,
@@ -72,13 +71,19 @@ async def run_search(
             )
         except Exception:
             log.exception("provider_search_error", provider=pname)
-            provider_results[pname] = {"status": "failed", "results": 0}
-            return
+            return pname, None
 
+    # Scrape all providers in parallel (no DB access here)
+    scrape_results = await asyncio.gather(*[scrape_provider(p) for p in providers])
+
+    # Write results sequentially — asyncpg allows only one operation per connection
+    for pname, result in scrape_results:
+        if result is None:
+            provider_results[pname] = {"status": "failed", "results": 0}
+            continue
         if result.status != ScrapeStatus.OK:
             provider_results[pname] = {"status": result.status.value, "results": 0}
-            return
-
+            continue
         results_to_add = []
         for listing in result.listings:
             prop = await property_repository.upsert_property(db, listing)
@@ -95,7 +100,6 @@ async def run_search(
         await search_repository.add_results(db, search_id, results_to_add)
         provider_results[pname] = {"status": "complete", "results": len(result.listings)}
 
-    await asyncio.gather(*[run_provider(p) for p in providers])
     await db.commit()
 
     total = sum(v["results"] for v in provider_results.values())

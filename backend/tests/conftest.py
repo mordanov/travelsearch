@@ -6,6 +6,8 @@ from unittest.mock import AsyncMock
 import pytest
 import pytest_asyncio
 from httpx import ASGITransport, AsyncClient
+from sqlalchemy import create_engine, text
+from sqlalchemy.pool import NullPool
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
 
 from app.core.database import Base, get_db
@@ -18,26 +20,33 @@ TEST_DATABASE_URL = (
     or "postgresql+asyncpg://postgres:postgres@localhost:5432/travelsearch_test"
 )
 
+_SYNC_URL = TEST_DATABASE_URL.replace("postgresql+asyncpg://", "postgresql+psycopg2://", 1)
+_TABLE_NAMES = [t.name for t in reversed(Base.metadata.sorted_tables)]
 
-@pytest_asyncio.fixture(scope="session", autouse=True)
-async def create_tables() -> AsyncGenerator[None]:
-    # Engine created inside the fixture so it shares the session-scoped event loop.
-    engine = create_async_engine(TEST_DATABASE_URL, echo=False)
-    async with engine.begin() as conn:
-        await conn.run_sync(Base.metadata.create_all)
+
+@pytest.fixture(scope="session", autouse=True)
+def create_tables() -> Any:
+    engine = create_engine(_SYNC_URL)
+    Base.metadata.create_all(engine)
+    engine.dispose()
     yield
-    async with engine.begin() as conn:
-        await conn.run_sync(Base.metadata.drop_all)
-    await engine.dispose()
+    engine = create_engine(_SYNC_URL)
+    Base.metadata.drop_all(engine)
+    engine.dispose()
 
 
 @pytest_asyncio.fixture
-async def db_session() -> AsyncGenerator[AsyncSession]:
-    engine = create_async_engine(TEST_DATABASE_URL, echo=False)
+async def db_session(create_tables: Any) -> AsyncGenerator[AsyncSession]:
+    engine = create_async_engine(TEST_DATABASE_URL, echo=False, poolclass=NullPool)
     factory = async_sessionmaker(bind=engine, class_=AsyncSession, expire_on_commit=False)
     async with factory() as session:
         yield session
-        await session.rollback()
+    # Wipe all rows after the test using an independent sync connection
+    sync_engine = create_engine(_SYNC_URL)
+    with sync_engine.begin() as conn:
+        for table in _TABLE_NAMES:
+            conn.execute(text(f'DELETE FROM "{table}"'))
+    sync_engine.dispose()
     await engine.dispose()
 
 
