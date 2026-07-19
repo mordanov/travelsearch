@@ -18,27 +18,27 @@ TEST_DATABASE_URL = (
     or "postgresql+asyncpg://postgres:postgres@localhost:5432/travelsearch_test"
 )
 
-_test_engine = create_async_engine(TEST_DATABASE_URL, echo=False)
-_test_session_factory = async_sessionmaker(
-    bind=_test_engine, class_=AsyncSession, expire_on_commit=False
-)
-
 
 @pytest_asyncio.fixture(scope="session", autouse=True)
 async def create_tables() -> AsyncGenerator[None]:
-    async with _test_engine.begin() as conn:
+    # Engine created inside the fixture so it shares the session-scoped event loop.
+    engine = create_async_engine(TEST_DATABASE_URL, echo=False)
+    async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
     yield
-    async with _test_engine.begin() as conn:
+    async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.drop_all)
+    await engine.dispose()
 
 
 @pytest_asyncio.fixture
 async def db_session() -> AsyncGenerator[AsyncSession]:
-    async with _test_session_factory() as session:
-        async with session.begin():
-            yield session
-            await session.rollback()
+    engine = create_async_engine(TEST_DATABASE_URL, echo=False)
+    factory = async_sessionmaker(bind=engine, class_=AsyncSession, expire_on_commit=False)
+    async with factory() as session:
+        yield session
+        await session.rollback()
+    await engine.dispose()
 
 
 @pytest.fixture
