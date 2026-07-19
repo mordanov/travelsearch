@@ -6,7 +6,7 @@ from unittest.mock import AsyncMock
 import pytest
 import pytest_asyncio
 from httpx import ASGITransport, AsyncClient
-from sqlalchemy import create_engine, text
+from sqlalchemy import text
 from sqlalchemy.pool import NullPool
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
 
@@ -20,34 +20,37 @@ TEST_DATABASE_URL = (
     or "postgresql+asyncpg://postgres:postgres@localhost:5432/travelsearch_test"
 )
 
-_SYNC_URL = TEST_DATABASE_URL.replace("postgresql+asyncpg://", "postgresql+psycopg2://", 1)
 _TABLE_NAMES = [t.name for t in reversed(Base.metadata.sorted_tables)]
 
+# One NullPool engine shared across the session — all tests share the same event loop,
+# so there is no cross-loop issue with NullPool (each operation opens+closes its connection).
+_async_engine = create_async_engine(TEST_DATABASE_URL, echo=False, poolclass=NullPool)
+_async_factory = async_sessionmaker(
+    bind=_async_engine, class_=AsyncSession, expire_on_commit=False
+)
 
-@pytest.fixture(scope="session", autouse=True)
-def create_tables() -> Any:
-    engine = create_engine(_SYNC_URL)
-    Base.metadata.create_all(engine)
-    engine.dispose()
+
+@pytest_asyncio.fixture(scope="session", autouse=True)
+async def create_tables() -> AsyncGenerator[None]:
+    async with _async_engine.begin() as conn:
+        await conn.run_sync(Base.metadata.create_all)
     yield
-    engine = create_engine(_SYNC_URL)
-    Base.metadata.drop_all(engine)
-    engine.dispose()
+    async with _async_engine.begin() as conn:
+        await conn.run_sync(Base.metadata.drop_all)
 
 
 @pytest_asyncio.fixture
-async def db_session(create_tables: Any) -> AsyncGenerator[AsyncSession]:
-    engine = create_async_engine(TEST_DATABASE_URL, echo=False, poolclass=NullPool)
-    factory = async_sessionmaker(bind=engine, class_=AsyncSession, expire_on_commit=False)
-    async with factory() as session:
-        yield session
-    # Wipe all rows after the test using an independent sync connection
-    sync_engine = create_engine(_SYNC_URL)
-    with sync_engine.begin() as conn:
+async def truncate_tables(create_tables: Any) -> AsyncGenerator[None]:
+    yield
+    async with _async_engine.begin() as conn:
         for table in _TABLE_NAMES:
-            conn.execute(text(f'DELETE FROM "{table}"'))
-    sync_engine.dispose()
-    await engine.dispose()
+            await conn.execute(text(f'DELETE FROM "{table}"'))
+
+
+@pytest_asyncio.fixture
+async def db_session(truncate_tables: Any) -> AsyncGenerator[AsyncSession]:
+    async with _async_factory() as session:
+        yield session
 
 
 @pytest.fixture
