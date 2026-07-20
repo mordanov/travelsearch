@@ -1,5 +1,5 @@
+from collections.abc import AsyncGenerator
 from contextlib import asynccontextmanager
-from typing import AsyncGenerator
 
 import structlog
 from fastapi import FastAPI, Request
@@ -48,7 +48,7 @@ async def _seed_default_user() -> None:
 
 
 @asynccontextmanager
-async def lifespan(application: FastAPI) -> AsyncGenerator[None, None]:
+async def lifespan(application: FastAPI) -> AsyncGenerator[None]:
     await _seed_default_user()
     yield
 
