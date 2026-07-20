@@ -49,6 +49,10 @@ class Settings(BaseSettings):
     # CORS
     cors_origins: list[str] = ["http://localhost:3000"]
 
+    # Default user seeded on startup (leave blank to skip)
+    default_user_email: str = ""
+    default_user_password: str = ""
+
     # App
     environment: str = "development"
     log_level: str = "INFO"
